@@ -1,5 +1,5 @@
 /*
- *  linux/arch/m32r/kernel/setup_mappi.c
+ *  linux/arch/m32r/kernel/setup_mappi2.c
  *
  *  Setup routines for Renesas MAPPI-II(M3A-ZA36) Board
  *
@@ -156,7 +156,6 @@ void __init init_IRQ(void)
 	irq_desc[PLD_IRQ_CFIREQ].handler = &mappi2_irq_type;
 	irq_desc[PLD_IRQ_CFIREQ].action = 0;
 	irq_desc[PLD_IRQ_CFIREQ].depth = 1;	/* disable nested irq */
-//	icu_data[PLD_IRQ_CFIREQ].icucr = M32R_ICUCR_IEN|M32R_ICUCR_ISMOD00;
 	icu_data[PLD_IRQ_CFIREQ].icucr = M32R_ICUCR_IEN|M32R_ICUCR_ISMOD01;
 	disable_mappi2_irq(PLD_IRQ_CFIREQ);
 
@@ -167,7 +166,6 @@ void __init init_IRQ(void)
 	irq_desc[PLD_IRQ_CFC_INSERT].action = 0;
 	irq_desc[PLD_IRQ_CFC_INSERT].depth = 1;	/* disable nested irq */
 	icu_data[PLD_IRQ_CFC_INSERT].icucr = M32R_ICUCR_IEN|M32R_ICUCR_ISMOD00;
-//	icu_data[PLD_IRQ_CFC_INSERT].icucr = 0;
 	disable_mappi2_irq(PLD_IRQ_CFC_INSERT);
 
 	/* ICUCR42: CFC Eject */
@@ -176,9 +174,7 @@ void __init init_IRQ(void)
 	irq_desc[PLD_IRQ_CFC_EJECT].action = 0;
 	irq_desc[PLD_IRQ_CFC_EJECT].depth = 1;	/* disable nested irq */
 	icu_data[PLD_IRQ_CFC_EJECT].icucr = M32R_ICUCR_IEN|M32R_ICUCR_ISMOD10;
-//	icu_data[PLD_IRQ_CFC_EJECT].icucr = 0;
 	disable_mappi2_irq(PLD_IRQ_CFC_EJECT);
-
 #endif /* CONFIG_MAPPI2_CFC */
 }
 
