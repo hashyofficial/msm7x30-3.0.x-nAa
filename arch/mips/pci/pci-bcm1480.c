@@ -56,13 +56,11 @@
 static void *cfg_space;
 
 #define PCI_BUS_ENABLED	1
-#define LDT_BUS_ENABLED	2
-#define PCI_DEVICE_MODE	4
+#define PCI_DEVICE_MODE	2
 
 static int bcm1480_bus_status = 0;
 
 #define PCI_BRIDGE_DEVICE  0
-#define LDT_BRIDGE_DEVICE  1
 
 /*
  * Read/write 32-bit values in config space.
@@ -95,10 +93,13 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
  */
 static int bcm1480_pci_can_access(struct pci_bus *bus, int devfn)
 {
+	u32 devno;
+
 	if (!(bcm1480_bus_status & (PCI_BUS_ENABLED | PCI_DEVICE_MODE)))
 		return 0;
 
 	if (bus->number == 0) {
+		devno = PCI_SLOT(devfn);
  		if (bcm1480_bus_status & PCI_DEVICE_MODE)
 			return 0;
 		else
@@ -175,15 +176,15 @@ struct pci_ops bcm1480_pci_ops = {
 
 static struct resource bcm1480_mem_resource = {
 	.name	= "BCM1480 PCI MEM",
-	.start	= 0x40000000UL,
-	.end	= 0x5fffffffUL,
+	.start	= 0x30000000UL,
+	.end	= 0x3fffffffUL,
 	.flags	= IORESOURCE_MEM,
 };
 
 static struct resource bcm1480_io_resource = {
 	.name	= "BCM1480 PCI I/O",
-	.start	= 0x00000000UL,
-	.end	= 0x01ffffffUL,
+	.start	= 0x2c000000UL,
+	.end	= 0x2dffffffUL,
 	.flags	= IORESOURCE_IO,
 };
 
@@ -207,9 +208,9 @@ static int __init bcm1480_pcibios_init(void)
 	PCIBIOS_MIN_IO = 0x00008000UL;
 	PCIBIOS_MIN_MEM = 0x01000000UL;
 
-	/* Set I/O resource limits.  */
-	ioport_resource.end = 0x01ffffffUL;	/* 32MB accessible by bcm1480 */
-	iomem_resource.end = 0xffffffffUL;	/* no HT support yet */
+	/* Set I/O resource limits. - unlimited for now to accomodate HT */
+	ioport_resource.end = 0xffffffffUL;
+	iomem_resource.end = 0xffffffffUL;
 
 	cfg_space = ioremap(A_BCM1480_PHYS_PCI_CFG_MATCH_BITS, 16*1024*1024);
 
