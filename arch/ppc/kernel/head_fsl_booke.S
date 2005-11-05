@@ -426,14 +426,14 @@ skpinv:	addi	r6,r6,1				/* Increment */
 
 interrupt_base:
 	/* Critical Input Interrupt */
-	CRITICAL_EXCEPTION(0x0100, CriticalInput, UnknownException)
+	CRITICAL_EXCEPTION(0x0100, CriticalInput, unknown_exception)
 
 	/* Machine Check Interrupt */
 #ifdef CONFIG_E200
 	/* no RFMCI, MCSRRs on E200 */
-	CRITICAL_EXCEPTION(0x0200, MachineCheck, MachineCheckException)
+	CRITICAL_EXCEPTION(0x0200, MachineCheck, machine_check_exception)
 #else
-	MCHECK_EXCEPTION(0x0200, MachineCheck, MachineCheckException)
+	MCHECK_EXCEPTION(0x0200, MachineCheck, machine_check_exception)
 #endif
 
 	/* Data Storage Interrupt */
@@ -542,9 +542,9 @@ interrupt_base:
 #else
 #ifdef CONFIG_E200
 	/* E200 treats 'normal' floating point instructions as FP Unavail exception */
-	EXCEPTION(0x0800, FloatingPointUnavailable, ProgramCheckException, EXC_XFER_EE)
+	EXCEPTION(0x0800, FloatingPointUnavailable, program_check_exception, EXC_XFER_EE)
 #else
-	EXCEPTION(0x0800, FloatingPointUnavailable, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x0800, FloatingPointUnavailable, unknown_exception, EXC_XFER_EE)
 #endif
 #endif
 
@@ -554,20 +554,20 @@ interrupt_base:
 	EXC_XFER_EE_LITE(0x0c00, DoSyscall)
 
 	/* Auxillary Processor Unavailable Interrupt */
-	EXCEPTION(0x2900, AuxillaryProcessorUnavailable, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x2900, AuxillaryProcessorUnavailable, unknown_exception, EXC_XFER_EE)
 
 	/* Decrementer Interrupt */
 	DECREMENTER_EXCEPTION
 
 	/* Fixed Internal Timer Interrupt */
 	/* TODO: Add FIT support */
-	EXCEPTION(0x3100, FixedIntervalTimer, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x3100, FixedIntervalTimer, unknown_exception, EXC_XFER_EE)
 
 	/* Watchdog Timer Interrupt */
 #ifdef CONFIG_BOOKE_WDT
 	CRITICAL_EXCEPTION(0x3200, WatchdogTimer, WatchdogException)
 #else
-	CRITICAL_EXCEPTION(0x3200, WatchdogTimer, UnknownException)
+	CRITICAL_EXCEPTION(0x3200, WatchdogTimer, unknown_exception)
 #endif
 
 	/* Data TLB Error Interrupt */
@@ -696,21 +696,21 @@ interrupt_base:
 	addi    r3,r1,STACK_FRAME_OVERHEAD
 	EXC_XFER_EE_LITE(0x2010, KernelSPE)
 #else
-	EXCEPTION(0x2020, SPEUnavailable, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x2020, SPEUnavailable, unknown_exception, EXC_XFER_EE)
 #endif /* CONFIG_SPE */
 
 	/* SPE Floating Point Data */
 #ifdef CONFIG_SPE
 	EXCEPTION(0x2030, SPEFloatingPointData, SPEFloatingPointException, EXC_XFER_EE);
 #else
-	EXCEPTION(0x2040, SPEFloatingPointData, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x2040, SPEFloatingPointData, unknown_exception, EXC_XFER_EE)
 #endif /* CONFIG_SPE */
 
 	/* SPE Floating Point Round */
-	EXCEPTION(0x2050, SPEFloatingPointRound, UnknownException, EXC_XFER_EE)
+	EXCEPTION(0x2050, SPEFloatingPointRound, unknown_exception, EXC_XFER_EE)
 
 	/* Performance Monitor */
-	EXCEPTION(0x2060, PerformanceMonitor, PerformanceMonitorException, EXC_XFER_STD)
+	EXCEPTION(0x2060, PerformanceMonitor, performance_monitor_exception, EXC_XFER_STD)
 
 
 	/* Debug Interrupt */
@@ -853,7 +853,7 @@ load_up_spe:
 	cmpi	0,r4,0
 	beq	1f
 	addi	r4,r4,THREAD	/* want THREAD of last_task_used_spe */
-	SAVE_32EVR(0,r10,r4)
+	SAVE_32EVRS(0,r10,r4)
    	evxor	evr10, evr10, evr10	/* clear out evr10 */
 	evmwumiaa evr10, evr10, evr10	/* evr10 <- ACC = 0 * 0 + ACC */
 	li	r5,THREAD_ACC
@@ -873,7 +873,7 @@ load_up_spe:
 	stw	r4,THREAD_USED_SPE(r5)
 	evlddx	evr4,r10,r5
 	evmra	evr4,evr4
-	REST_32EVR(0,r10,r5)
+	REST_32EVRS(0,r10,r5)
 #ifndef CONFIG_SMP
 	subi	r4,r5,THREAD
 	stw	r4,last_task_used_spe@l(r3)
@@ -963,7 +963,7 @@ _GLOBAL(giveup_spe)
 	addi	r3,r3,THREAD		/* want THREAD of task */
 	lwz	r5,PT_REGS(r3)
 	cmpi	0,r5,0
-	SAVE_32EVR(0, r4, r3)
+	SAVE_32EVRS(0, r4, r3)
    	evxor	evr6, evr6, evr6	/* clear out evr6 */
 	evmwumiaa evr6, evr6, evr6	/* evr6 <- ACC = 0 * 0 + ACC */
 	li	r4,THREAD_ACC
@@ -1028,10 +1028,14 @@ _GLOBAL(set_context)
  * goes at the beginning of the data segment, which is page-aligned.
  */
 	.data
-_GLOBAL(sdata)
-_GLOBAL(empty_zero_page)
+	.align	12
+	.globl	sdata
+sdata:
+	.globl	empty_zero_page
+empty_zero_page:
 	.space	4096
-_GLOBAL(swapper_pg_dir)
+	.globl	swapper_pg_dir
+swapper_pg_dir:
 	.space	4096
 
 /* Reserved 4k for the critical exception stack & 4k for the machine
@@ -1040,13 +1044,15 @@ _GLOBAL(swapper_pg_dir)
         .align 12
 exception_stack_bottom:
 	.space	BOOKE_EXCEPTION_STACK_SIZE * NR_CPUS
-_GLOBAL(exception_stack_top)
+	.globl	exception_stack_top
+exception_stack_top:
 
 /*
  * This space gets a copy of optional info passed to us by the bootstrap
  * which is used to pass parameters into the kernel like root=/dev/sda1, etc.
  */
-_GLOBAL(cmd_line)
+	.globl	cmd_line
+cmd_line:
 	.space	512
 
 /*
@@ -1055,4 +1061,3 @@ _GLOBAL(cmd_line)
  */
 abatron_pteptrs:
 	.space	8
-
