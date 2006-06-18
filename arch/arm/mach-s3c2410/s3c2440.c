@@ -1,6 +1,6 @@
 /* linux/arch/arm/mach-s3c2410/s3c2440.c
  *
- * Copyright (c) 2004-2005 Simtec Electronics
+ * Copyright (c) 2004-2006 Simtec Electronics
  *   Ben Dooks <ben@simtec.co.uk>
  *
  * Samsung S3C2440 Mobile CPU support
@@ -8,16 +8,6 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
- *
- * Modifications:
- *	24-Aug-2004 BJD  Start of s3c2440 support
- *	12-Oct-2004 BJD	 Moved clock info out to clock.c
- *	01-Nov-2004 BJD  Fixed clock build code
- *	09-Nov-2004 BJD  Added sysdev for power management
- *	04-Nov-2004 BJD  New serial registration
- *	15-Nov-2004 BJD  Rename the i2c device for the s3c2440
- *	14-Jan-2005 BJD  Moved clock init code into seperate function
- *	14-Jan-2005 BJD  Removed un-used clock bits
 */
 
 #include <linux/kernel.h>
@@ -50,144 +40,20 @@
 #include "cpu.h"
 #include "pm.h"
 
-
-static struct map_desc s3c2440_iodesc[] __initdata = {
-	IODESC_ENT(USBHOST),
-	IODESC_ENT(CLKPWR),
-	IODESC_ENT(LCD),
-	IODESC_ENT(TIMER),
-	IODESC_ENT(ADC),
-	IODESC_ENT(WATCHDOG),
-};
-
-/* uart initialisation */
-
-void __init s3c2440_init_uarts(struct s3c2410_uartcfg *cfg, int no)
-{
-	s3c24xx_init_uartdevs("s3c2440-uart", s3c2410_uart_resources, cfg, no);
-}
-
-#ifdef CONFIG_PM
-
-static struct sleep_save s3c2440_sleep[] = {
-	SAVE_ITEM(S3C2440_DSC0),
-	SAVE_ITEM(S3C2440_DSC1),
-	SAVE_ITEM(S3C2440_GPJDAT),
-	SAVE_ITEM(S3C2440_GPJCON),
-	SAVE_ITEM(S3C2440_GPJUP)
-};
-
-static int s3c2440_suspend(struct sys_device *dev, pm_message_t state)
-{
-	s3c2410_pm_do_save(s3c2440_sleep, ARRAY_SIZE(s3c2440_sleep));
-	return 0;
-}
-
-static int s3c2440_resume(struct sys_device *dev)
-{
-	s3c2410_pm_do_restore(s3c2440_sleep, ARRAY_SIZE(s3c2440_sleep));
-	return 0;
-}
-
-#else
-#define s3c2440_suspend NULL
-#define s3c2440_resume  NULL
-#endif
-
-struct sysdev_class s3c2440_sysclass = {
-	set_kset_name("s3c2440-core"),
-	.suspend	= s3c2440_suspend,
-	.resume		= s3c2440_resume
-};
-
 static struct sys_device s3c2440_sysdev = {
 	.cls		= &s3c2440_sysclass,
 };
 
-void __init s3c2440_map_io(struct map_desc *mach_desc, int size)
+int __init s3c2440_init(void)
 {
-	/* register our io-tables */
-
-	iotable_init(s3c2440_iodesc, ARRAY_SIZE(s3c2440_iodesc));
-	iotable_init(mach_desc, size);
-
-	/* rename any peripherals used differing from the s3c2410 */
-
-	s3c_device_i2c.name  = "s3c2440-i2c";
-	s3c_device_nand.name = "s3c2440-nand";
+	printk("S3C2440: Initialising architecture\n");
 
 	/* change irq for watchdog */
 
 	s3c_device_wdt.resource[1].start = IRQ_S3C2440_WDT;
 	s3c_device_wdt.resource[1].end   = IRQ_S3C2440_WDT;
-}
 
-void __init s3c2440_init_clocks(int xtal)
-{
-	unsigned long clkdiv;
-	unsigned long camdiv;
-	unsigned long hclk, fclk, pclk;
-	int hdiv = 1;
-
-	/* now we've got our machine bits initialised, work out what
-	 * clocks we've got */
-
-	fclk = s3c2410_get_pll(__raw_readl(S3C2410_MPLLCON), xtal) * 2;
-
-	clkdiv = __raw_readl(S3C2410_CLKDIVN);
-	camdiv = __raw_readl(S3C2440_CAMDIVN);
-
-	/* work out clock scalings */
-
-	switch (clkdiv & S3C2440_CLKDIVN_HDIVN_MASK) {
-	case S3C2440_CLKDIVN_HDIVN_1:
-		hdiv = 1;
-		break;
-
-	case S3C2440_CLKDIVN_HDIVN_2:
-		hdiv = 2;
-		break;
-
-	case S3C2440_CLKDIVN_HDIVN_4_8:
-		hdiv = (camdiv & S3C2440_CAMDIVN_HCLK4_HALF) ? 8 : 4;
-		break;
-
-	case S3C2440_CLKDIVN_HDIVN_3_6:
-		hdiv = (camdiv & S3C2440_CAMDIVN_HCLK3_HALF) ? 6 : 3;
-		break;
-	}
-
-	hclk = fclk / hdiv;
-	pclk = hclk / ((clkdiv & S3C2440_CLKDIVN_PDIVN)? 2:1);
-
-	/* print brief summary of clocks, etc */
-
-	printk("S3C2440: core %ld.%03ld MHz, memory %ld.%03ld MHz, peripheral %ld.%03ld MHz\n",
-	       print_mhz(fclk), print_mhz(hclk), print_mhz(pclk));
-
-	/* initialise the clocks here, to allow other things like the
-	 * console to use them, and to add new ones after the initialisation
-	 */
-
-	s3c24xx_setup_clocks(xtal, fclk, hclk, pclk);
-}
-
-/* need to register class before we actually register the device, and
- * we also need to ensure that it has been initialised before any of the
- * drivers even try to use it (even if not on an s3c2440 based system)
- * as a driver which may support both 2410 and 2440 may try and use it.
-*/
-
-static int __init s3c2440_core_init(void)
-{
-	return sysdev_class_register(&s3c2440_sysclass);
-}
-
-core_initcall(s3c2440_core_init);
-
-int __init s3c2440_init(void)
-{
-	printk("S3C2440: Initialising architecture\n");
+	/* register our system device for everything else */
 
 	return sysdev_register(&s3c2440_sysdev);
 }
