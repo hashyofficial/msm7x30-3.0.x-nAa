@@ -61,4 +61,4 @@ extern struct of_device *of_platform_device_create(struct device_node *np,
 extern void of_release_dev(struct device *dev);
 
 #endif /* __KERNEL__ */
-#endif /* _ASM_POWERPC_OF_DEVICE_H */
+#endif /* _ASM_SPARC64_OF_DEVICE_H */
