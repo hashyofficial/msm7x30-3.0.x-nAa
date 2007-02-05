@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91rm9200/at91_pdc.h
+ * include/asm-arm/arch-at91/at91_pdc.h
  *
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
