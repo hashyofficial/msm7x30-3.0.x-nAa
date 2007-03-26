@@ -22,9 +22,6 @@
 #include "sn9c102_sensor.h"
 
 
-static struct sn9c102_sensor tas5110c1b;
-
-
 static int tas5110c1b_init(struct sn9c102_device* cam)
 {
 	int err = 0;
@@ -98,7 +95,7 @@ static int tas5110c1b_set_pix_format(struct sn9c102_device* cam,
 static struct sn9c102_sensor tas5110c1b = {
 	.name = "TAS5110C1B",
 	.maintainer = "Luca Risolia <luca.risolia@studio.unibo.it>",
-	.supported_bridge = BRIDGE_SN9C101 | BRIDGE_SN9C102 | BRIDGE_SN9C103,
+	.supported_bridge = BRIDGE_SN9C101 | BRIDGE_SN9C102,
 	.sysfs_ops = SN9C102_I2C_WRITE,
 	.frequency = SN9C102_I2C_100KHZ,
 	.interface = SN9C102_I2C_3WIRES,
@@ -146,7 +143,6 @@ int sn9c102_probe_tas5110c1b(struct sn9c102_device* cam)
 	const struct usb_device_id tas5110c1b_id_table[] = {
 		{ USB_DEVICE(0x0c45, 0x6001), },
 		{ USB_DEVICE(0x0c45, 0x6005), },
-		{ USB_DEVICE(0x0c45, 0x6007), },
 		{ USB_DEVICE(0x0c45, 0x60ab), },
 		{ }
 	};
