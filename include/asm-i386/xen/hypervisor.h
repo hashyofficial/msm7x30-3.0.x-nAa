@@ -42,6 +42,7 @@
 
 #include <asm/ptrace.h>
 #include <asm/page.h>
+#include <asm/desc.h>
 #if defined(__i386__)
 #  ifdef CONFIG_X86_PAE
 #   include <asm-generic/pgtable-nopud.h>
