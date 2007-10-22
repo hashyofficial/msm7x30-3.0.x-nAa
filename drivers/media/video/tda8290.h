@@ -24,6 +24,7 @@
 extern int tda8290_probe(struct tuner *t);
 
 extern int tda8290_attach(struct tuner *t);
+extern int tda8295_attach(struct tuner *t);
 #else
 static inline int tda8290_probe(struct tuner *t)
 {
@@ -32,6 +33,13 @@ static inline int tda8290_probe(struct tuner *t)
 }
 
 static inline int tda8290_attach(struct tuner *t)
+{
+	printk(KERN_INFO "%s: not probed - driver disabled by Kconfig\n",
+	       __FUNCTION__);
+	return -EINVAL;
+}
+
+static inline int tda8295_attach(struct tuner *t)
 {
 	printk(KERN_INFO "%s: not probed - driver disabled by Kconfig\n",
 	       __FUNCTION__);
