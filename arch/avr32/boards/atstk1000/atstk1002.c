@@ -55,7 +55,7 @@ static struct at73c213_board_info at73c213_data = {
 };
 #endif
 
-#ifndef CONFIG_BOARD_ATSTK1002_SW1_CUSTOM
+#ifndef CONFIG_BOARD_ATSTK100X_SW1_CUSTOM
 static struct spi_board_info spi0_board_info[] __initdata = {
 #ifdef CONFIG_BOARD_ATSTK1000_EXTDAC
 	{
@@ -77,7 +77,7 @@ static struct spi_board_info spi0_board_info[] __initdata = {
 };
 #endif
 
-#ifdef CONFIG_BOARD_ATSTK1002_SPI1
+#ifdef CONFIG_BOARD_ATSTK100X_SPI1
 static struct spi_board_info spi1_board_info[] __initdata = { {
 	/* patch in custom entries here */
 } };
@@ -175,7 +175,7 @@ static void __init atstk1002_setup_extdac(void)
 
 void __init setup_board(void)
 {
-#ifdef	CONFIG_BOARD_ATSTK1002_SW2_CUSTOM
+#ifdef	CONFIG_BOARD_ATSTK100X_SW2_CUSTOM
 	at32_map_usart(0, 1);	/* USART 0/B: /dev/ttyS1, IRDA */
 #else
 	at32_map_usart(1, 0);	/* USART 1/A: /dev/ttyS0, DB9 */
@@ -212,7 +212,7 @@ static int __init atstk1002_init(void)
 
 	at32_add_system_devices();
 
-#ifdef	CONFIG_BOARD_ATSTK1002_SW2_CUSTOM
+#ifdef	CONFIG_BOARD_ATSTK100X_SW2_CUSTOM
 	at32_add_device_usart(1);
 #else
 	at32_add_device_usart(0);
@@ -222,10 +222,10 @@ static int __init atstk1002_init(void)
 #ifndef CONFIG_BOARD_ATSTK1002_SW6_CUSTOM
 	set_hw_addr(at32_add_device_eth(0, &eth_data[0]));
 #endif
-#ifndef CONFIG_BOARD_ATSTK1002_SW1_CUSTOM
+#ifndef CONFIG_BOARD_ATSTK100X_SW1_CUSTOM
 	at32_add_device_spi(0, spi0_board_info, ARRAY_SIZE(spi0_board_info));
 #endif
-#ifdef CONFIG_BOARD_ATSTK1002_SPI1
+#ifdef CONFIG_BOARD_ATSTK100X_SPI1
 	at32_add_device_spi(1, spi1_board_info, ARRAY_SIZE(spi1_board_info));
 #endif
 #ifdef CONFIG_BOARD_ATSTK1002_SW5_CUSTOM
@@ -235,7 +235,7 @@ static int __init atstk1002_init(void)
 			     fbmem_start, fbmem_size);
 #endif
 	at32_add_device_usba(0, NULL);
-#ifndef CONFIG_BOARD_ATSTK1002_SW3_CUSTOM
+#ifndef CONFIG_BOARD_ATSTK100X_SW3_CUSTOM
 	at32_add_device_ssc(0, ATMEL_SSC_TX);
 #endif
 
