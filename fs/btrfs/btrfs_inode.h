@@ -29,6 +29,7 @@ struct btrfs_inode {
 	struct extent_map_tree extent_tree;
 	struct inode vfs_inode;
 
+	u64 ordered_trans;
 	/*
 	 * transid of the trans_handle that last modified this inode
 	 */
