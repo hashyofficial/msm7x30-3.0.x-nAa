@@ -31,7 +31,7 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 
-#include <asm/jmr3927/jmr3927.h>
+#include <asm/txx9/jmr3927.h>
 #include <asm/debug.h>
 
 struct resource pci_io_resource = {
