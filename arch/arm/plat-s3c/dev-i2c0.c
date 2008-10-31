@@ -37,12 +37,16 @@ static struct resource s3c_i2c_resource[] = {
 
 struct platform_device s3c_device_i2c0 = {
 	.name		  = "s3c2410-i2c",
+#ifdef CONFIG_S3C_DEV_I2C1
+	.id		  = 0,
+#else
 	.id		  = -1,
+#endif
 	.num_resources	  = ARRAY_SIZE(s3c_i2c_resource),
 	.resource	  = s3c_i2c_resource,
 };
 
-struct s3c2410_platform_i2c default_i2c_data __initdata = {
+static struct s3c2410_platform_i2c default_i2c_data0 __initdata = {
 	.flags		= 0,
 	.slave_addr	= 0x10,
 	.bus_freq	= 100*1000,
@@ -55,7 +59,7 @@ void __init s3c_i2c0_set_platdata(struct s3c2410_platform_i2c *pd)
 	struct s3c2410_platform_i2c *npd;
 
 	if (!pd)
-		pd = &default_i2c_data;
+		pd = &default_i2c_data0;
 
 	npd = kmemdup(pd, sizeof(struct s3c2410_platform_i2c), GFP_KERNEL);
 	if (!npd)
