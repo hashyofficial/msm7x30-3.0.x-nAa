@@ -54,10 +54,21 @@ static const int routing_scheme0[] = {
 	[PVR2_CVAL_INPUT_SVIDEO] =  SAA7115_SVIDEO2,
 };
 
+static const int routing_scheme1[] = {
+	[PVR2_CVAL_INPUT_TV] = SAA7115_COMPOSITE4,
+	[PVR2_CVAL_INPUT_RADIO] = SAA7115_COMPOSITE5,
+	[PVR2_CVAL_INPUT_COMPOSITE] = SAA7115_COMPOSITE3,
+	[PVR2_CVAL_INPUT_SVIDEO] =  SAA7115_SVIDEO2, /* or SVIDEO0, it seems */
+};
+
 static const struct routing_scheme routing_schemes[] = {
 	[PVR2_ROUTING_SCHEME_HAUPPAUGE] = {
 		.def = routing_scheme0,
 		.cnt = ARRAY_SIZE(routing_scheme0),
+	},
+	[PVR2_ROUTING_SCHEME_ONAIR] = {
+		.def = routing_scheme1,
+		.cnt = ARRAY_SIZE(routing_scheme1),
 	},
 };
 
