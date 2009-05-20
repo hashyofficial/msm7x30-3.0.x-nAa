@@ -54,6 +54,9 @@ static void __init mx31lilly_board_init(void)
 	switch (mx31lilly_baseboard) {
 	case MX31LILLY_NOBOARD:
 		break;
+	case MX31LILLY_DB:
+		mx31lilly_db_init();
+		break;
 	default:
 		printk(KERN_ERR "Illegal mx31lilly_baseboard type %d\n",
 			mx31lilly_baseboard);
