@@ -26,18 +26,10 @@
  *
  */
 
-
-
 #ifndef __TETHER_H__
 #define __TETHER_H__
 
-
-#if !defined(__TTYPE_H__)
 #include "ttype.h"
-#endif
-
-
-
 
 /*---------------------  Export Definitions -------------------------*/
 //
@@ -179,7 +171,7 @@ typedef struct tagSEthernetHeader {
     BYTE    abySrcAddr[U_ETHER_ADDR_LEN];
     WORD    wType;
 }__attribute__ ((__packed__))
-SEthernetHeader, DEF* PSEthernetHeader;
+SEthernetHeader, *PSEthernetHeader;
 
 
 //
@@ -190,7 +182,7 @@ typedef struct tagS802_3Header {
     BYTE    abySrcAddr[U_ETHER_ADDR_LEN];
     WORD    wLen;
 }__attribute__ ((__packed__))
-S802_3Header, DEF* PS802_3Header;
+S802_3Header, *PS802_3Header;
 
 //
 // 802_11 packet
@@ -204,7 +196,7 @@ typedef struct tagS802_11Header {
     WORD    wSeqCtl;
     BYTE    abyAddr4[U_ETHER_ADDR_LEN];
 }__attribute__ ((__packed__))
-S802_11Header, DEF* PS802_11Header;
+S802_11Header, *PS802_11Header;
 
 /*---------------------  Export Macros ------------------------------*/
 // Frame type macro
@@ -233,22 +225,10 @@ S802_11Header, DEF* PS802_11Header;
 /*---------------------  Export Variables  --------------------------*/
 
 /*---------------------  Export Functions  --------------------------*/
-#ifdef __cplusplus
-extern "C" {                            /* Assume C declarations for C++ */
-#endif /* __cplusplus */
-
 
 BYTE ETHbyGetHashIndexByCrc32(PBYTE pbyMultiAddr);
 //BYTE ETHbyGetHashIndexByCrc(PBYTE pbyMultiAddr);
 BOOL ETHbIsBufferCrc32Ok(PBYTE pbyBuffer, UINT cbFrameLength);
-
-
-#ifdef __cplusplus
-}                                       /* End of extern "C" { */
-#endif /* __cplusplus */
-
-
-
 
 #endif // __TETHER_H__
 
