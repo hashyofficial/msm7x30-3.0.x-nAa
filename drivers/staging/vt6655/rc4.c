@@ -1,5 +1,6 @@
 /*
- * File: rc4.c
+ * Copyright (c) 1996, 2003 VIA Networking Technologies, Inc.
+ * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +16,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
+ * File: rc4.c
+ *
  * Purpose:
  *
  * Functions:
@@ -27,9 +30,7 @@
  *
  */
 
-#if !defined(__RC4_H__)
 #include "rc4.h"
-#endif
 
 VOID rc4_init(PRC4Ext pRC4, PBYTE pbyKey, UINT cbKey_len)
 {
