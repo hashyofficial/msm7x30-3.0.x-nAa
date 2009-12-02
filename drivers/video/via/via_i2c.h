@@ -24,39 +24,19 @@
 #include <linux/i2c.h>
 #include <linux/i2c-algo-bit.h>
 
-enum via_i2c_type {
-	VIA_I2C_NONE,
-	VIA_I2C_I2C,
-	VIA_I2C_GPIO,
-};
-
-/* private data for each adapter */
-struct via_i2c_adap_cfg {
-	enum via_i2c_type	type;
-	u_int16_t		io_port;
-	u_int8_t		ioport_index;
-	u8			is_active;
-};
-
 struct via_i2c_stuff {
 	u16 i2c_port;			/* GPIO or I2C port */
 	struct i2c_adapter adapter;
 	struct i2c_algo_bit_data algo;
 };
 
-enum viafb_i2c_adap {
-	VIA_I2C_ADAP_26,
-	VIA_I2C_ADAP_31,
-	VIA_I2C_ADAP_25,
-	VIA_I2C_ADAP_2C,
-	VIA_I2C_ADAP_3D,
-};
 
 int viafb_i2c_readbyte(u8 adap, u8 slave_addr, u8 index, u8 *pdata);
 int viafb_i2c_writebyte(u8 adap, u8 slave_addr, u8 index, u8 data);
 int viafb_i2c_readbytes(u8 adap, u8 slave_addr, u8 index, u8 *buff, int buff_len);
 
 struct viafb_par;
-int viafb_create_i2c_busses(struct viafb_par *par);
-void viafb_delete_i2c_busses(struct viafb_par *par);
+int viafb_create_i2c_busses(struct via_port_cfg *cfg);
+void viafb_delete_i2c_busses(void);
+struct i2c_adapter *viafb_find_adapter(enum viafb_i2c_adap which);
 #endif /* __VIA_I2C_H__ */
