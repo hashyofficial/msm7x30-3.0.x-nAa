@@ -18,6 +18,18 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <asm/irq.h>
+#include <linux/signal.h>
+#include <linux/sched.h>
+#include <linux/interrupt.h>
+
+#include "dmxdev.h"
+#include "dvbdev.h"
+#include "dvb_demux.h"
+#include "dvb_frontend.h"
+#include "dvb_net.h"
+
+#include "zl10353.h"
 #include "mantis_common.h"
 #include "mantis_vp3030.h"
 
@@ -27,15 +39,6 @@ struct zl10353_config mantis_vp3030_config = {
 
 #define MANTIS_MODEL_NAME	"VP-3030"
 #define MANTIS_DEV_TYPE		"DVB-T"
-
-struct mantis_hwconfig vp3030_mantis_config = {
-	.model_name	= MANTIS_MODEL_NAME,
-	.dev_type	= MANTIS_DEV_TYPE,
-	.ts_size	= MANTIS_TS_188,
-	.baud_rate	= MANTIS_BAUD_9600,
-	.parity		= MANTIS_PARITY_NONE,
-	.bytes		= 0,
-};
 
 int panasonic_en57h12d5_set_params(struct dvb_frontend *fe,
 				   struct dvb_frontend_parameters *params)
@@ -63,3 +66,31 @@ int panasonic_en57h12d5_set_params(struct dvb_frontend *fe,
 
 	return 0;
 }
+
+static int vp3030_frontend_init(struct mantis_pci *mantis, struct dvb_frontend *fe)
+{
+	struct i2c_adapter *adapter	= &mantis->adapter;
+
+	dprintk(MANTIS_ERROR, 1, "Probing for 10353 (DVB-T)");
+	fe = zl10353_attach(&mantis_vp3030_config, adapter);
+
+	if (!fe)
+		return -1;
+
+	mantis->fe = fe;
+	dprintk(MANTIS_ERROR, 1, "Done!");
+
+	return 0;
+}
+
+struct mantis_hwconfig vp3030_config = {
+	.model_name	= MANTIS_MODEL_NAME,
+	.dev_type	= MANTIS_DEV_TYPE,
+	.ts_size	= MANTIS_TS_188,
+
+	.baud_rate	= MANTIS_BAUD_9600,
+	.parity		= MANTIS_PARITY_NONE,
+	.bytes		= 0,
+
+	.frontend_init	= vp3030_frontend_init,
+};
