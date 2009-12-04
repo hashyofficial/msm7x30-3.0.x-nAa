@@ -32,6 +32,9 @@ struct mantis_hwconfig vp3030_mantis_config = {
 	.model_name	= MANTIS_MODEL_NAME,
 	.dev_type	= MANTIS_DEV_TYPE,
 	.ts_size	= MANTIS_TS_188,
+	.baud_rate	= MANTIS_BAUD_9600,
+	.parity		= MANTIS_PARITY_NONE,
+	.bytes		= 0,
 };
 
 int panasonic_en57h12d5_set_params(struct dvb_frontend *fe,
