@@ -32,4 +32,6 @@ struct ar9003_rxs {
 	u32 status11;
 } __packed;
 
+void ar9003_hw_attach_mac_ops(struct ath_hw *hw);
+
 #endif
