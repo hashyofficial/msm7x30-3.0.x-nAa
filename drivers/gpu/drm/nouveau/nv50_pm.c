@@ -27,12 +27,6 @@
 #include "nouveau_bios.h"
 #include "nouveau_pm.h"
 
-/*XXX: boards using limits 0x40 need fixing, the register layout
- *     is correct here, but, there's some other funny magic
- *     that modifies things, so it's not likely we'll set/read
- *     the correct timings yet..  working on it...
- */
-
 struct nv50_pm_state {
 	struct nouveau_pm_level *perflvl;
 	struct pll_lims pll;
@@ -51,21 +45,13 @@ nv50_pm_clock_get(struct drm_device *dev, u32 id)
 	if (ret)
 		return ret;
 
-	if (pll.vco2.maxfreq) {
-		reg0 = nv_rd32(dev, pll.reg + 0);
-		reg1 = nv_rd32(dev, pll.reg + 4);
-		P = (reg0 & 0x00070000) >> 16;
-		N = (reg1 & 0x0000ff00) >> 8;
-		M = (reg1 & 0x000000ff);
+	reg0 = nv_rd32(dev, pll.reg + 0);
+	reg1 = nv_rd32(dev, pll.reg + 4);
+	P = (reg0 & 0x00070000) >> 16;
+	N = (reg1 & 0x0000ff00) >> 8;
+	M = (reg1 & 0x000000ff);
 
-		return ((pll.refclk * N / M) >> P);
-	}
-
-	reg0 = nv_rd32(dev, pll.reg + 4);
-	P = (reg0 & 0x003f0000) >> 16;
-	N = (reg0 & 0x0000ff00) >> 8;
-	M = (reg0 & 0x000000ff);
-	return pll.refclk * N / M / P;
+	return ((pll.refclk * N / M) >> P);
 }
 
 void *
@@ -125,23 +111,19 @@ nv50_pm_clock_set(struct drm_device *dev, void *pre_state)
 		nouveau_bios_run_init_table(dev, perflvl->memscript, NULL);
 	}
 
-	if (state->pll.vco2.maxfreq) {
-		if (state->type == PLL_MEMORY) {
-			nv_wr32(dev, 0x100210, 0);
-			nv_wr32(dev, 0x1002dc, 1);
-		}
+	if (state->type == PLL_MEMORY) {
+		nv_wr32(dev, 0x100210, 0);
+		nv_wr32(dev, 0x1002dc, 1);
+	}
 
-		tmp  = nv_rd32(dev, reg + 0) & 0xfff8ffff;
-		tmp |= 0x80000000 | (P << 16);
-		nv_wr32(dev, reg + 0, tmp);
-		nv_wr32(dev, reg + 4, (N << 8) | M);
+	tmp  = nv_rd32(dev, reg + 0) & 0xfff8ffff;
+	tmp |= 0x80000000 | (P << 16);
+	nv_wr32(dev, reg + 0, tmp);
+	nv_wr32(dev, reg + 4, (N << 8) | M);
 
-		if (state->type == PLL_MEMORY) {
-			nv_wr32(dev, 0x1002dc, 0);
-			nv_wr32(dev, 0x100210, 0x80000000);
-		}
-	} else {
-		nv_wr32(dev, reg + 4, (P << 16) | (N << 8) | M);
+	if (state->type == PLL_MEMORY) {
+		nv_wr32(dev, 0x1002dc, 0);
+		nv_wr32(dev, 0x100210, 0x80000000);
 	}
 
 	kfree(state);
