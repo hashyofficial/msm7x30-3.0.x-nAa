@@ -64,9 +64,10 @@
 #include "request.h"
 #include "sata.h"
 #include "task.h"
+#include "events.h"
 
 /**
- * scic_cb_timer_create() - This callback method asks the user to create a
+ * isci_event_timer_create() - This callback method asks the user to create a
  *    timer and provide a handle for this timer for use in further timer
  *    interactions. The appropriate isci timer object function is called to
  *    create a timer object.
@@ -81,7 +82,7 @@
  * This method returns a handle to a timer object created by the user.  The
  * handle will be utilized for all further interactions relating to this timer.
  */
-void *scic_cb_timer_create(
+void *isci_event_timer_create(
 	struct scic_sds_controller *controller,
 	void (*timer_callback)(void *),
 	void *cookie)
@@ -107,7 +108,7 @@ void *scic_cb_timer_create(
 
 
 /**
- * scic_cb_timer_start() - This callback method asks the user to start the
+ * isci_event_timer_start() - This callback method asks the user to start the
  *    supplied timer. The appropriate isci timer object function is called to
  *    start the timer.
  * @controller: This parameter specifies the controller with which this timer
@@ -118,7 +119,7 @@ void *scic_cb_timer_create(
  *    where necessary.
  *
  */
-void scic_cb_timer_start(
+void isci_event_timer_start(
 	struct scic_sds_controller *controller,
 	void *timer,
 	u32 milliseconds)
@@ -137,7 +138,7 @@ void scic_cb_timer_start(
 }
 
 /**
- * scic_cb_timer_stop() - This callback method asks the user to stop the
+ * isci_event_timer_stop() - This callback method asks the user to stop the
  *    supplied timer. The appropriate isci timer object function is called to
  *    stop the timer.
  * @controller: This parameter specifies the controller with which this timer
@@ -145,7 +146,7 @@ void scic_cb_timer_start(
  * @timer: This parameter specifies the timer to be stopped.
  *
  */
-void scic_cb_timer_stop(
+void isci_event_timer_stop(
 	struct scic_sds_controller *controller,
 	void *timer)
 {
@@ -162,7 +163,7 @@ void scic_cb_timer_stop(
 }
 
 /**
- * scic_cb_controller_start_complete() - This user callback will inform the
+ * isci_event_controller_start_complete() - This user callback will inform the
  *    user that the controller has finished the start process. The associated
  *    isci host adapter's start_complete function is called.
  * @controller: This parameter specifies the controller that was started.
@@ -170,7 +171,7 @@ void scic_cb_timer_stop(
  *    operation.  SCI_SUCCESS indicates successful completion.
  *
  */
-void scic_cb_controller_start_complete(
+void isci_event_controller_start_complete(
 	struct scic_sds_controller *controller,
 	enum sci_status completion_status)
 {
@@ -184,7 +185,7 @@ void scic_cb_controller_start_complete(
 }
 
 /**
- * scic_cb_controller_stop_complete() - This user callback will inform the user
+ * isci_event_controller_stop_complete() - This user callback will inform the user
  *    that the controller has finished the stop process. The associated isci
  *    host adapter's start_complete function is called.
  * @controller: This parameter specifies the controller that was stopped.
@@ -192,7 +193,7 @@ void scic_cb_controller_start_complete(
  *    operation.  SCI_SUCCESS indicates successful completion.
  *
  */
-void scic_cb_controller_stop_complete(
+void isci_event_controller_stop_complete(
 	struct scic_sds_controller *controller,
 	enum sci_status completion_status)
 {
@@ -205,7 +206,7 @@ void scic_cb_controller_stop_complete(
 }
 
 /**
- * scic_cb_io_request_complete() - This user callback will inform the user that
+ * isci_event_io_request_complete() - This user callback will inform the user that
  *    an IO request has completed.
  * @controller: This parameter specifies the controller on which the IO is
  *    completing.
@@ -216,7 +217,7 @@ void scic_cb_controller_stop_complete(
  *    operation.  SCI_SUCCESS indicates successful completion.
  *
  */
-void scic_cb_io_request_complete(
+void isci_event_io_request_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device,
 	struct scic_sds_request *scic_io_request,
@@ -239,7 +240,7 @@ void scic_cb_io_request_complete(
 }
 
 /**
- * scic_cb_task_request_complete() - This user callback will inform the user
+ * isci_event_task_request_complete() - This user callback will inform the user
  *    that a task management request completed.
  * @controller: This parameter specifies the controller on which the task
  *    management request is completing.
@@ -251,7 +252,7 @@ void scic_cb_io_request_complete(
  *    operation.  SCI_SUCCESS indicates successful completion.
  *
  */
-void scic_cb_task_request_complete(
+void isci_event_task_request_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device,
 	struct scic_sds_request *scic_task_request,
@@ -271,7 +272,7 @@ void scic_cb_task_request_complete(
 }
 
 /**
- * scic_cb_port_stop_complete() - This method informs the user when a stop
+ * isci_event_port_stop_complete() - This method informs the user when a stop
  *    operation on the port has completed.
  * @controller: This parameter represents the controller which contains the
  *    port.
@@ -281,17 +282,20 @@ void scic_cb_task_request_complete(
  *    being completed.
  *
  */
-void scic_cb_port_stop_complete(
+void isci_event_port_stop_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	enum sci_status completion_status)
 {
-	pr_warn("%s:************************************************\n",
-		__func__);
+	struct isci_host *isci_host;
+
+	isci_host = (struct isci_host *)sci_object_get_association(controller);
+
+	dev_notice(&isci_host->pdev->dev, "Port stop complete\n");
 }
 
 /**
- * scic_cb_port_hard_reset_complete() - This method informs the user when a
+ * isci_event_port_hard_reset_complete() - This method informs the user when a
  *    hard reset on the port has completed.  This hard reset could have been
  *    initiated by the user or by the remote port.
  * @controller: This parameter represents the controller which contains the
@@ -302,7 +306,7 @@ void scic_cb_port_stop_complete(
  *    being completed.
  *
  */
-void scic_cb_port_hard_reset_complete(
+void isci_event_port_hard_reset_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	enum sci_status completion_status)
@@ -314,7 +318,7 @@ void scic_cb_port_hard_reset_complete(
 }
 
 /**
- * scic_cb_port_ready() - This method informs the user that the port is now in
+ * isci_event_port_ready() - This method informs the user that the port is now in
  *    a ready state and can be utilized to issue IOs.
  * @controller: This parameter represents the controller which contains the
  *    port.
@@ -322,7 +326,7 @@ void scic_cb_port_hard_reset_complete(
  *    is being invoked.
  *
  */
-void scic_cb_port_ready(
+void isci_event_port_ready(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port)
 {
@@ -342,7 +346,7 @@ void scic_cb_port_ready(
 }
 
 /**
- * scic_cb_port_not_ready() - This method informs the user that the port is now
+ * isci_event_port_not_ready() - This method informs the user that the port is now
  *    not in a ready (i.e. busy) state and can't be utilized to issue IOs.
  * @controller: This parameter represents the controller which contains the
  *    port.
@@ -350,7 +354,7 @@ void scic_cb_port_ready(
  *    is being invoked.
  *
  */
-void scic_cb_port_not_ready(
+void isci_event_port_not_ready(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	u32 reason_code)
@@ -371,7 +375,7 @@ void scic_cb_port_not_ready(
 }
 
 /**
- * scic_cb_port_invalid_link_up() - This method informs the SCI Core user that
+ * isci_event_port_invalid_link_up() - This method informs the SCI Core user that
  *    a phy/link became ready, but the phy is not allowed in the port.  In some
  *    situations the underlying hardware only allows for certain phy to port
  *    mappings.  If these mappings are violated, then this API is invoked.
@@ -383,17 +387,19 @@ void scic_cb_port_not_ready(
  *    a valid member of the port.
  *
  */
-void scic_cb_port_invalid_link_up(
+void isci_event_port_invalid_link_up(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	struct scic_sds_phy *phy)
 {
-	pr_warn("%s:************************************************\n",
-		__func__);
+	struct isci_host *isci_host;
+
+	isci_host = (struct isci_host *)sci_object_get_association(controller);
+	dev_warn(&isci_host->pdev->dev, "Invalid link up!\n");
 }
 
 /**
- * scic_cb_port_bc_change_primitive_received() - This callback method informs
+ * isci_event_port_bc_change_primitive_received() - This callback method informs
  *    the user that a broadcast change primitive was received.
  * @controller: This parameter represents the controller which contains the
  *    port.
@@ -403,7 +409,7 @@ void scic_cb_port_invalid_link_up(
  * @phy: This parameter specifies the phy on which the primitive was received.
  *
  */
-void scic_cb_port_bc_change_primitive_received(
+void isci_event_port_bc_change_primitive_received(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	struct scic_sds_phy *phy)
@@ -422,7 +428,7 @@ void scic_cb_port_bc_change_primitive_received(
 
 
 /**
- * scic_cb_port_link_up() - This callback method informs the user that a phy
+ * isci_event_port_link_up() - This callback method informs the user that a phy
  *    has become operational and is capable of communicating with the remote
  *    end point.
  * @controller: This parameter represents the controller associated with the
@@ -435,7 +441,7 @@ void scic_cb_port_bc_change_primitive_received(
  *
  * none.
  */
-void scic_cb_port_link_up(
+void isci_event_port_link_up(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	struct scic_sds_phy *phy)
@@ -452,7 +458,7 @@ void scic_cb_port_link_up(
 }
 
 /**
- * scic_cb_port_link_down() - This callback method informs the user that a phy
+ * isci_event_port_link_down() - This callback method informs the user that a phy
  *    is no longer operational and is not capable of communicating with the
  *    remote end point.
  * @controller: This parameter represents the controller associated with the
@@ -465,7 +471,7 @@ void scic_cb_port_link_up(
  *
  * none.
  */
-void scic_cb_port_link_down(
+void isci_event_port_link_down(
 	struct scic_sds_controller *controller,
 	struct scic_sds_port *port,
 	struct scic_sds_phy *phy)
@@ -490,7 +496,7 @@ void scic_cb_port_link_down(
 }
 
 /**
- * scic_cb_remote_device_start_complete() - This user callback method will
+ * isci_event_remote_device_start_complete() - This user callback method will
  *    inform the user that a start operation has completed.
  * @controller: This parameter specifies the core controller associated with
  *    the completion callback.
@@ -500,7 +506,7 @@ void scic_cb_port_link_down(
  *    operation.
  *
  */
-void scic_cb_remote_device_start_complete(
+void isci_event_remote_device_start_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device,
 	enum sci_status completion_status)
@@ -525,7 +531,7 @@ void scic_cb_remote_device_start_complete(
 }
 
 /**
- * scic_cb_remote_device_stop_complete() - This user callback method will
+ * isci_event_remote_device_stop_complete() - This user callback method will
  *    inform the user that a stop operation has completed.
  * @controller: This parameter specifies the core controller associated with
  *    the completion callback.
@@ -535,7 +541,7 @@ void scic_cb_remote_device_start_complete(
  *    operation.
  *
  */
-void scic_cb_remote_device_stop_complete(
+void isci_event_remote_device_stop_complete(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device,
 	enum sci_status completion_status)
@@ -560,7 +566,7 @@ void scic_cb_remote_device_stop_complete(
 }
 
 /**
- * scic_cb_remote_device_ready() - This user callback method will inform the
+ * isci_event_remote_device_ready() - This user callback method will inform the
  *    user that a remote device is now capable of handling IO requests.
  * @controller: This parameter specifies the core controller associated with
  *    the completion callback.
@@ -568,7 +574,7 @@ void scic_cb_remote_device_stop_complete(
  *    the callback.
  *
  */
-void scic_cb_remote_device_ready(
+void isci_event_remote_device_ready(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device)
 {
@@ -583,7 +589,7 @@ void scic_cb_remote_device_ready(
 }
 
 /**
- * scic_cb_remote_device_not_ready() - This user callback method will inform
+ * isci_event_remote_device_not_ready() - This user callback method will inform
  *    the user that a remote device is no longer capable of handling IO
  *    requests (until a ready callback is invoked).
  * @controller: This parameter specifies the core controller associated with
@@ -594,7 +600,7 @@ void scic_cb_remote_device_ready(
  *    going to a not ready state.
  *
  */
-void scic_cb_remote_device_not_ready(
+void isci_event_remote_device_not_ready(
 	struct scic_sds_controller *controller,
 	struct scic_sds_remote_device *remote_device,
 	u32 reason_code)
