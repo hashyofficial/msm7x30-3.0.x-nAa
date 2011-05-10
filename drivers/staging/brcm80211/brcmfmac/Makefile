@@ -50,9 +50,7 @@ DHDOFILES = \
 	bcmsdh.o \
 	bcmsdh_linux.o	\
 	bcmsdh_sdmmc.o \
-	bcmsdh_sdmmc_linux.o \
-	bcmutils.o \
-	bcmwifi.o
+	bcmsdh_sdmmc_linux.o
 
 obj-m += brcmfmac.o
 brcmfmac-objs += $(DHDOFILES)
