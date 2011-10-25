@@ -17,6 +17,7 @@
 int msm_arch_idle(void);
 int msm_pm_collapse(void);
 void msm_pm_collapse_exit(void);
+void msm_warmboot_entry(void);
 
 #ifdef CONFIG_CPU_V7
 void msm_pm_boot_entry(void);
