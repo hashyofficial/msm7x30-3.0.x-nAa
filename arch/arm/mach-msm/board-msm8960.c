@@ -92,7 +92,6 @@
 #include "smd_private.h"
 #include "pm-boot.h"
 #include "msm_watchdog.h"
-#include "board-msm8960.h"
 
 #define PLATFORM_IS_CHARM25() \
 	(machine_is_msm8960_cdp() && \
@@ -1279,17 +1278,6 @@ static void __init msm8960_map_io(void)
 	if (socinfo_init() < 0)
 		pr_err("socinfo_init() failed!\n");
 }
-
-#ifdef CONFIG_ARCH_MSM8930
-static void __init msm8930_map_io(void)
-{
-	msm_shared_ram_phys = MSM_SHARED_RAM_PHYS;
-	msm_map_msm8930_io();
-
-	if (socinfo_init() < 0)
-		pr_err("socinfo_init() failed!\n");
-}
-#endif
 
 static void __init msm8960_init_irq(void)
 {
@@ -2793,35 +2781,3 @@ MACHINE_START(MSM8960_LIQUID, "QCT MSM8960 LIQUID")
 	.init_early = msm8960_allocate_memory_regions,
 	.init_very_early = msm8960_early_memory,
 MACHINE_END
-
-#ifdef CONFIG_ARCH_MSM8930
-MACHINE_START(MSM8930_CDP, "QCT MSM8930 CDP")
-	.map_io = msm8930_map_io,
-	.reserve = msm8960_reserve,
-	.init_irq = msm8960_init_irq,
-	.timer = &msm_timer,
-	.init_machine = msm8960_cdp_init,
-	.init_early = msm8960_allocate_memory_regions,
-	.init_very_early = msm8960_early_memory,
-MACHINE_END
-
-MACHINE_START(MSM8930_MTP, "QCT MSM8930 MTP")
-	.map_io = msm8930_map_io,
-	.reserve = msm8960_reserve,
-	.init_irq = msm8960_init_irq,
-	.timer = &msm_timer,
-	.init_machine = msm8960_cdp_init,
-	.init_early = msm8960_allocate_memory_regions,
-	.init_very_early = msm8960_early_memory,
-MACHINE_END
-
-MACHINE_START(MSM8930_FLUID, "QCT MSM8930 FLUID")
-	.map_io = msm8930_map_io,
-	.reserve = msm8960_reserve,
-	.init_irq = msm8960_init_irq,
-	.timer = &msm_timer,
-	.init_machine = msm8960_cdp_init,
-	.init_early = msm8960_allocate_memory_regions,
-	.init_very_early = msm8960_early_memory,
-MACHINE_END
-#endif
